@@ -1,0 +1,20 @@
+name: testdebug
+on:
+    workflow_dispatch:
+
+jobs:
+    build:
+        name: build release binaries
+        strategy:
+            fail-fast: false
+            matrix:
+                os: ["macos-latest"]
+        runs-on: ${{ matrix.os }}
+        steps:
+            - name: build macos
+              id: macos_build
+              if: contains(matrix.os, 'macos')
+              run: |
+                echo $(xcodebuild -showsdks)
+                echo "macos_version=$(xcodebuild -showsdks)" >> "$GITHUB_OUTPUT"
+                ls -alh
