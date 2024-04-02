@@ -39,7 +39,7 @@ jobs:
                 cargo build --profile optimized --locked --target=aarch64-apple-darwin
                 lipo -create -output target/qwert-${{github.ref_name}}-universal-apple-darwin target/aarch64-apple-darwin/optimized/qwert target/x86_64-apple-darwin/optimized/qwert
                 ditto -c -k --sequesterRsrc target/qwert-${{github.ref_name}}-universal-apple-darwin qwert-${{github.ref_name}}-universal-apple-darwin.zip
-                echo "::set-output name=macos_version::$(xcodebuild -showsdks)"
+                echo "macos_version=$(xcodebuild -showsdks)" >> "$GITHUB_OUTPUT"
                 ls -alh
             - name: Upload unix Artifacts
               uses: actions/upload-artifact@v4
@@ -69,9 +69,7 @@ jobs:
         steps:
             - name: Get version from tag
               id: tag_name
-              run: |
-                echo ::set-output name=current_version::${GITHUB_REF#refs/tags/v}
-              shell: bash
+              run: echo "current_version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
             - name: Checkout code
               uses: actions/checkout@v4
             - name: Get Changelog Entry
