@@ -33,7 +33,7 @@ jobs:
               if: contains(matrix.os, 'macos')
               run: |
                 rustup target add aarch64-apple-darwin
-                export CROSSBUILD_MACOS_SDK="macosx12"
+                export CROSSBUILD_MACOS_SDK="macosx12.0"
                 export SDKROOT=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-path)
                 export MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-platform-version)
                 cargo build --profile optimized --locked --target=x86_64-apple-darwin
@@ -42,7 +42,7 @@ jobs:
                 ditto -c -k --sequesterRsrc target/qwert-${{github.ref_name}}-universal-apple-darwin qwert-${{github.ref_name}}-universal-apple-darwin.zip
                 otool -l target/aarch64-apple-darwin/optimized/qwert | grep -A 5 LC_BUILD_VERSION
                 otool -l target/x86_64-apple-darwin/optimized/qwert | grep -A 5 LC_BUILD_VERSION
-                otool -l target/qwert-${{github.ref_name}}-universal-apple-darwin
+                otool -l target/qwert-${{github.ref_name}}-universal-apple-darwin | grep -A 5 LC_BUILD_VERSION
                 echo "macos_version=$CROSSBUILD_MACOS_SDK" >> "$GITHUB_OUTPUT"
                 echo $(xcodebuild -showsdks)
                 ls -alh
@@ -61,8 +61,8 @@ jobs:
                 path: |
                     qwert-${{github.ref_name}}-universal-apple-darwin.zip
         outputs:
-            rust-version: ${{ steps.rust.outputs.name }}
-            glibc-version: ldd --version | awk '/ldd/ {print $NF}'
+            rust-version: $(rustc --version | awk '{print $2}')
+            glibc-version: $(ldd --version | awk '/ldd/ {print $NF}')
             macos-version: ${{ steps.macos_build.outputs.macos_version }}
             
     release:
