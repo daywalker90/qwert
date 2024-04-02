@@ -1,7 +1,7 @@
 name: test suite
 on: 
     release:
-        types: [created]
+        types: [prereleased]
 
 jobs:
   release:
