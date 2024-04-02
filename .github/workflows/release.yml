@@ -59,14 +59,14 @@ jobs:
                 name: macos-binaries
                 path: |
                     qwert-${{github.ref_name}}-universal-apple-darwin.zip
-            - name: Get used versions
+            - name: Get rust and glibc versions
+              id: rgversions
               run: |
                 echo "rust_version=$(rustc --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
                 echo "glibc_version=$(ldd --version | awk '/ldd/ {print $NF}')" >> "$GITHUB_OUTPUT"
-                echo "macos_version=$CROSSBUILD_MACOS_SDK" >> "$GITHUB_OUTPUT"
         outputs:
-            rust-version: ${{ steps.macos_build.outputs.rust_version }}
-            glibc-version: ${{ steps.macos_build.outputs.glibc_version }}
+            rust-version: ${{ steps.rgversions.outputs.rust_version }}
+            glibc-version: ${{ steps.rgversions.outputs.glibc_version }}
             macos-version: ${{ steps.macos_build.outputs.macos_version }}
             
     release:
@@ -97,5 +97,5 @@ jobs:
               with:
                 allowUpdates: false
                 artifactErrorsFailBuild: true
-                body: "${{ steps.changelog_reader.outputs.changes }} \n\n ###Release binaries info\n\n- Release binaries were built using rust ${{ needs.build.outputs.rust-version }}.\n- Linux release binaries require glibc>= ${{ needs.build.outputs.glibc-version }}.\n- MacOS release binaries need MacOS>=${{ needs.build.outputs.macos-version }}"
+                body: "${{ steps.changelog_reader.outputs.changes }} \n\n### Release binaries info\n\n- Release binaries were built using rust ${{ needs.build.outputs.rust-version }}.\n- Linux release binaries require glibc>= ${{ needs.build.outputs.glibc-version }}.\n- MacOS release binaries need MacOS>=${{ needs.build.outputs.macos-version }}"
                 artifacts: "qwert-${{github.ref_name}}-*.tar.gz,qwert-${{github.ref_name}}-*.zip"
