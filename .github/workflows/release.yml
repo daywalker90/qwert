@@ -33,13 +33,18 @@ jobs:
               if: contains(matrix.os, 'macos')
               run: |
                 rustup target add aarch64-apple-darwin
-                export SDKROOT=$(xcrun -sdk macosx --show-sdk-path)
-                export MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version)
+                export CROSSBUILD_MACOS_SDK="macosx13.1"
+                export SDKROOT=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-path)
+                export MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-platform-version)
                 cargo build --profile optimized --locked --target=x86_64-apple-darwin
                 cargo build --profile optimized --locked --target=aarch64-apple-darwin
                 lipo -create -output target/qwert-${{github.ref_name}}-universal-apple-darwin target/aarch64-apple-darwin/optimized/qwert target/x86_64-apple-darwin/optimized/qwert
                 ditto -c -k --sequesterRsrc target/qwert-${{github.ref_name}}-universal-apple-darwin qwert-${{github.ref_name}}-universal-apple-darwin.zip
-                echo "macos_version=$(xcodebuild -showsdks)" >> "$GITHUB_OUTPUT"
+                otool -l target/aarch64-apple-darwin/optimized/qwert
+                otool -l target/x86_64-apple-darwin/optimized/qwert
+                otool -l target/qwert-${{github.ref_name}}-universal-apple-darwin
+                echo "macos_version=$CROSSBUILD_MACOS_SDK" >> "$GITHUB_OUTPUT"
+                echo $(xcodebuild -showsdks)
                 ls -alh
             - name: Upload unix Artifacts
               uses: actions/upload-artifact@v4
