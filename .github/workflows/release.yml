@@ -33,15 +33,15 @@ jobs:
               if: contains(matrix.os, 'macos')
               run: |
                 rustup target add aarch64-apple-darwin
-                export CROSSBUILD_MACOS_SDK="macosx13.1"
+                export CROSSBUILD_MACOS_SDK="macosx12"
                 export SDKROOT=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-path)
                 export MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-platform-version)
                 cargo build --profile optimized --locked --target=x86_64-apple-darwin
                 cargo build --profile optimized --locked --target=aarch64-apple-darwin
                 lipo -create -output target/qwert-${{github.ref_name}}-universal-apple-darwin target/aarch64-apple-darwin/optimized/qwert target/x86_64-apple-darwin/optimized/qwert
                 ditto -c -k --sequesterRsrc target/qwert-${{github.ref_name}}-universal-apple-darwin qwert-${{github.ref_name}}-universal-apple-darwin.zip
-                otool -l target/aarch64-apple-darwin/optimized/qwert
-                otool -l target/x86_64-apple-darwin/optimized/qwert
+                otool -l target/aarch64-apple-darwin/optimized/qwert | grep -A 5 LC_BUILD_VERSION
+                otool -l target/x86_64-apple-darwin/optimized/qwert | grep -A 5 LC_BUILD_VERSION
                 otool -l target/qwert-${{github.ref_name}}-universal-apple-darwin
                 echo "macos_version=$CROSSBUILD_MACOS_SDK" >> "$GITHUB_OUTPUT"
                 echo $(xcodebuild -showsdks)
