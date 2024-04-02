@@ -18,6 +18,7 @@ jobs:
             - name: install rust
               uses: dtolnay/rust-toolchain@stable
             - name: install cross
+              if: contains(matrix.os, 'ubuntu')
               run: |
                 cargo install cross --git https://github.com/cross-rs/cross
             - name: build unix
@@ -30,8 +31,8 @@ jobs:
               if: contains(matrix.os, 'macos')
               run: |
                 rustup target add aarch64-apple-darwin
-                export SDKROOT=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-path)
-                export MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-platform-version)
+                export SDKROOT=$(xcrun -sdk macosx --show-sdk-path)
+                export MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version)
                 cargo build --profile optimized --locked --target=x86_64-apple-darwin
                 cargo build --profile optimized --locked --target=aarch64-apple-darwin
                 lipo -create -output target/qwert-${{github.ref_name}}-universal-apple-darwin target/aarch64-apple-darwin/optimized/qwert target/x86_64-apple-darwin/optimized/qwert
