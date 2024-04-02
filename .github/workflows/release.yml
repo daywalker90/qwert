@@ -2,7 +2,7 @@ name: test suite
 on: 
     push:
       tags:
-      - '*'
+      - 'v*'
 
 jobs:
     build:
@@ -10,7 +10,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: ["ubuntu-latest"]
+                os: ["ubuntu-latest", "macos-latest"]
         runs-on: ${{ matrix.os }}
         steps:
             - name: Checkout code
@@ -29,14 +29,28 @@ jobs:
             - name: build macos
               if: contains(matrix.os, 'macos')
               run: |
-                cargo build --profile optimized --locked
-                ls -alh target
-            - name: Upload Artifacts
+                rustup target add aarch64-apple-darwin
+                export SDKROOT=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-path)
+                export MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-platform-version)
+                cargo build --profile optimized --locked --target=x86_64-apple-darwin
+                cargo build --profile optimized --locked --target=aarch64-apple-darwin
+                lipo -create -output target/qwert-${{github.ref_name}}-universal-apple-darwin target/aarch64-apple-darwin/optimized/qwert target/x86_64-apple-darwin/optimized/qwert
+                ditto -c -k --sequesterRsrc target/qwert-${{github.ref_name}}-universal-apple-darwin qwert-${{github.ref_name}}-universal-apple-darwin.zip
+                ls -alh
+            - name: Upload unix Artifacts
               uses: actions/upload-artifact@v4
+              if: contains(matrix.os, 'ubuntu')
               with:
-                name: release-binaries
+                name: unix-binaries
                 path: |
                     qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz
+            - name: Upload macos Artifacts
+              uses: actions/upload-artifact@v4
+              if: contains(matrix.os, 'macos')
+              with:
+                name: unix-binaries
+                path: |
+                    qwert-${{github.ref_name}}-universal-apple-darwin.zip
             
     release:
         name: Github Release
@@ -45,16 +59,26 @@ jobs:
         permissions:
             contents: write
         steps:
+            - name: Get version from tag
+              id: tag_name
+              run: |
+                echo ::set-output name=current_version::${GITHUB_REF#refs/tags/v}
+              shell: bash
             - name: Checkout code
               uses: actions/checkout@v4
+            - name: Get Changelog Entry
+              id: changelog_reader
+              uses: mindsers/changelog-reader-action@v2
+              with:
+                validation_level: warn
+                version: ${{ steps.tag_name.outputs.current_version }}
+                path: ./CHANGELOG.md
             - name: Download Artifacts
               uses: actions/download-artifact@v4
-              with:
-                name: release-binaries
             - name: Release
-              uses: ncipollo/release-action@main
+              uses: ncipollo/release-action@v1
               with:
                 allowUpdates: false
                 artifactErrorsFailBuild: true
-                bodyFile: "Changes.md"
-                artifacts: "qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz"
+                body: ${{ steps.changelog_reader.outputs.changes }}
+                artifacts: "qwert-${{github.ref_name}}-*.tar.gz,qwert-${{github.ref_name}}-*.zip"
