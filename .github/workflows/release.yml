@@ -1,7 +1,8 @@
 name: test suite
 on: 
-    release:
-        types: [prereleased]
+    push:
+      tags:
+      - '*'
 
 jobs:
   release:
@@ -25,12 +26,20 @@ jobs:
             cross build --profile optimized --locked --target x86_64-unknown-linux-gnu
             cross build --profile optimized --locked --target armv7-unknown-linux-gnueabihf
             cross build --profile optimized --locked --target aarch64-unknown-linux-gnu
-            tar -czf "qwert-${{ github.event.release.tag_name }}-aarch64-linux-gnu.tar.gz" --transform 's|.*/||' "target/aarch64-unknown-linux-gnu/optimized/qwert"
-            tar -czf "qwert-${{ github.event.release.tag_name }}-armv7-linux-gnueabihf.tar.gz" --transform 's|.*/||' "target/armv7-unknown-linux-gnueabihf/optimized/qwert"
-            tar -czf "qwert-${{ github.event.release.tag_name }}-x86_64-linux-gnu.tar.gz" --transform 's|.*/||' "target/x86_64-unknown-linux-gnu/optimized/qwert"
+            tar -czf "qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz" --transform 's|.*/||' "target/aarch64-unknown-linux-gnu/optimized/qwert"
+            tar -czf "qwert-${{github.ref_name}}-armv7-linux-gnueabihf.tar.gz" --transform 's|.*/||' "target/armv7-unknown-linux-gnueabihf/optimized/qwert"
+            tar -czf "qwert-${{github.ref_name}}-x86_64-linux-gnu.tar.gz" --transform 's|.*/||' "target/x86_64-unknown-linux-gnu/optimized/qwert"
             ls -alh
         - name: build macos
           if: contains(matrix.os, 'macos')
           run: |
             cargo build --profile optimized --locked
             ls -alh target
+        - name: Upload unix binaries
+          if: contains(matrix.os, 'ubuntu')
+          uses: ncipollo/release-action@main
+          with:
+            allowUpdates: true
+            artifactErrorsFailBuild: true
+            omitBodyDuringUpdate: true
+            artifacts: "qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz,qwert-${{github.ref_name}}-armv7-linux-gnueabihf.tar.gz,qwert-${{github.ref_name}}-x86_64-linux-gnu.tar.gz"
