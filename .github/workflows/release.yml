@@ -42,6 +42,7 @@ jobs:
             
     release:
         name: Github Release
+        needs: [build]
         runs-on: "ubuntu-latest"
         steps:
             - name: Download Artifacts
