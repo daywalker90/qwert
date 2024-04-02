@@ -12,6 +12,8 @@ jobs:
         matrix:
             os: ["ubuntu-latest", "macos-latest"]
     runs-on: ${{ matrix.os }}
+    permissions:
+        contents: write
     steps:
         - name: Checkout code
           uses: actions/checkout@v4
@@ -27,8 +29,6 @@ jobs:
             cross build --profile optimized --locked --target armv7-unknown-linux-gnueabihf
             cross build --profile optimized --locked --target aarch64-unknown-linux-gnu
             tar -czf "qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz" --transform 's|.*/||' "target/aarch64-unknown-linux-gnu/optimized/qwert"
-            tar -czf "qwert-${{github.ref_name}}-armv7-linux-gnueabihf.tar.gz" --transform 's|.*/||' "target/armv7-unknown-linux-gnueabihf/optimized/qwert"
-            tar -czf "qwert-${{github.ref_name}}-x86_64-linux-gnu.tar.gz" --transform 's|.*/||' "target/x86_64-unknown-linux-gnu/optimized/qwert"
             ls -alh
         - name: build macos
           if: contains(matrix.os, 'macos')
