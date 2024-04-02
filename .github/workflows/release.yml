@@ -34,8 +34,10 @@ jobs:
               run: |
                 rustup target add aarch64-apple-darwin
                 export CROSSBUILD_MACOS_SDK="macosx12.0"
-                export SDKROOT=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-path)
-                export MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk $CROSSBUILD_MACOS_SDK --show-sdk-platform-version)
+                echo $(xcrun -sdk macosx --show-sdk-path)
+                echo $(xcrun -sdk macosx --show-sdk-platform-version)
+                export SDKROOT=$(xcrun -sdk macos --show-sdk-path)
+                export MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version)
                 cargo build --profile optimized --locked --target=x86_64-apple-darwin
                 cargo build --profile optimized --locked --target=aarch64-apple-darwin
                 lipo -create -output target/qwert-${{github.ref_name}}-universal-apple-darwin target/aarch64-apple-darwin/optimized/qwert target/x86_64-apple-darwin/optimized/qwert
@@ -86,6 +88,8 @@ jobs:
                 path: ./CHANGELOG.md
             - name: Download Artifacts
               uses: actions/download-artifact@v4
+              with:
+                merge-multiple: true
             - name: Release
               uses: ncipollo/release-action@v1
               with:
