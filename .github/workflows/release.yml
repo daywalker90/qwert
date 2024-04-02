@@ -42,4 +42,4 @@ jobs:
             allowUpdates: true
             artifactErrorsFailBuild: true
             omitBodyDuringUpdate: true
-            artifacts: "qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz,qwert-${{github.ref_name}}-armv7-linux-gnueabihf.tar.gz,qwert-${{github.ref_name}}-x86_64-linux-gnu.tar.gz"
+            artifacts: "qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz"
