@@ -5,41 +5,53 @@ on:
       - '*'
 
 jobs:
-  release:
-    name: build release binaries
-    strategy:
-        fail-fast: false
-        matrix:
-            os: ["ubuntu-latest"]
-    runs-on: ${{ matrix.os }}
-    permissions:
-        contents: write
-    steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-        - name: install rust
-          uses: dtolnay/rust-toolchain@stable
-        - name: install cross
-          run: |
-            cargo install cross --git https://github.com/cross-rs/cross
-        - name: build unix
-          if: contains(matrix.os, 'ubuntu')
-          run: |
-            cross build --profile optimized --locked --target x86_64-unknown-linux-gnu
-            cross build --profile optimized --locked --target armv7-unknown-linux-gnueabihf
-            cross build --profile optimized --locked --target aarch64-unknown-linux-gnu
-            tar -czf "qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz" --transform 's|.*/||' "target/aarch64-unknown-linux-gnu/optimized/qwert"
-            ls -alh
-        - name: build macos
-          if: contains(matrix.os, 'macos')
-          run: |
-            cargo build --profile optimized --locked
-            ls -alh target
-        - name: Upload unix binaries
-          if: contains(matrix.os, 'ubuntu')
-          uses: ncipollo/release-action@main
-          with:
-            allowUpdates: true
-            artifactErrorsFailBuild: true
-            omitBodyDuringUpdate: true
-            artifacts: "qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz"
+    build:
+        name: build release binaries
+        strategy:
+            fail-fast: false
+            matrix:
+                os: ["ubuntu-latest"]
+        runs-on: ${{ matrix.os }}
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            - name: install rust
+              uses: dtolnay/rust-toolchain@stable
+            - name: install cross
+              run: |
+                cargo install cross --git https://github.com/cross-rs/cross
+            - name: build unix
+              if: contains(matrix.os, 'ubuntu')
+              run: |
+                cross build --profile optimized --locked --target aarch64-unknown-linux-gnu
+                tar -czf "qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz" --transform 's|.*/||' "target/aarch64-unknown-linux-gnu/optimized/qwert"
+                ls -alh
+            - name: build macos
+              if: contains(matrix.os, 'macos')
+              run: |
+                cargo build --profile optimized --locked
+                ls -alh target
+            - name: Upload Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                name: release-binaries
+                path: |
+                    qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz
+            
+    release:
+        name: Github Release
+        runs-on: "ubuntu-latest"
+        steps:
+            - name: Download Artifacts
+              uses: actions/download-artifact@v4
+              with:
+                name: release-binaries
+            - name: Release
+              uses: ncipollo/release-action@main
+              with:
+                allowUpdates: false
+                artifactErrorsFailBuild: true
+                bodyFile: "Changes.md"
+                artifacts: "qwert-${{github.ref_name}}-aarch64-linux-gnu.tar.gz"
