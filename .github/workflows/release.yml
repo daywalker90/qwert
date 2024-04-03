@@ -1,4 +1,4 @@
-name: test suite
+name: Build and release
 on: 
     push:
       tags:
@@ -6,7 +6,7 @@ on:
 
 jobs:
     build:
-        name: build release binaries
+        name: build release binaries on ${{ matrix.os }}
         strategy:
             fail-fast: false
             matrix:
@@ -15,22 +15,25 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
-            - name: install rust
+            - name: Install rust
               id: rust
               uses: dtolnay/rust-toolchain@stable
-            - name: install cross
+            - name: Install cross
               if: contains(matrix.os, 'ubuntu')
               run: |
                 cargo install cross --git https://github.com/cross-rs/cross
-            - name: build unix
+            - name: Build unix
               id: unix_build
               if: contains(matrix.os, 'ubuntu')
               run: |
+                cross build --profile optimized --locked --target x86_64-unknown-linux-gnu
+                cross build --profile optimized --locked --target armv7-unknown-linux-gnueabihf
                 cross build --profile optimized --locked --target aarch64-unknown-linux-gnu
                 tar -czf "${{ github.event.repository.name }}-${{github.ref_name}}-aarch64-linux-gnu.tar.gz" --transform 's|.*/||' "target/aarch64-unknown-linux-gnu/optimized/${{ github.event.repository.name }}"
-                echo "glibc_version=$(ldd --version | awk '/ldd/ {print $NF}')" >> "$GITHUB_OUTPUT"
+                tar -czf "${{ github.event.repository.name }}-${{github.ref_name}}-armv7-linux-gnueabihf.tar.gz" --transform 's|.*/||' "target/armv7-unknown-linux-gnueabihf/optimized/${{ github.event.repository.name }}"
+                tar -czf "${{ github.event.repository.name }}-${{github.ref_name}}-x86_64-linux-gnu.tar.gz" --transform 's|.*/||' "target/x86_64-unknown-linux-gnu/optimized/${{ github.event.repository.name }}"
                 ls -alh
-            - name: build macos
+            - name: Build macos
               id: macos_build
               if: contains(matrix.os, 'macos')
               run: |
@@ -47,14 +50,14 @@ jobs:
                 echo "macos_version=$MACOSX_DEPLOYMENT_TARGET" >> "$GITHUB_OUTPUT"
                 echo $(xcodebuild -showsdks)
                 ls -alh
-            - name: Upload unix Artifacts
+            - name: Upload unix artifacts
               uses: actions/upload-artifact@v4
               if: contains(matrix.os, 'ubuntu')
               with:
                 name: unix-binaries
                 path: |
-                    ${{ github.event.repository.name }}-${{github.ref_name}}-aarch64-linux-gnu.tar.gz
-            - name: Upload macos Artifacts
+                    ${{ github.event.repository.name }}-${{github.ref_name}}-*.tar.gz
+            - name: Upload macos artifacts
               uses: actions/upload-artifact@v4
               if: contains(matrix.os, 'macos')
               with:
@@ -67,7 +70,6 @@ jobs:
                 echo "rust_version=$(rustc --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
         outputs:
             rust-version: ${{ steps.rversion.outputs.rust_version }}
-            glibc-version: ${{ steps.unix_build.outputs.glibc_version }}
             macos-version: ${{ steps.macos_build.outputs.macos_version }}
 
     release:
@@ -98,5 +100,5 @@ jobs:
               with:
                 allowUpdates: false
                 artifactErrorsFailBuild: true
-                body: "${{ steps.changelog_reader.outputs.changes }} \n\n### Release binaries info\n\n- Release binaries were built using rust ${{ needs.build.outputs.rust-version }}.\n- Linux release binaries require glibc>= ${{ needs.build.outputs.glibc-version }}.\n- MacOS release binary requires MacOS>=${{ needs.build.outputs.macos-version }}"
+                body: "${{ steps.changelog_reader.outputs.changes }} \n\n### Release binaries info\n\n- Release binaries were built using rust ${{ needs.build.outputs.rust-version }}\n- Linux release binaries require glibc>=2.31\n- MacOS release binary requires MacOS>=${{ needs.build.outputs.macos-version }}"
                 artifacts: "${{ github.event.repository.name }}-${{github.ref_name}}-*.tar.gz,${{ github.event.repository.name }}-${{github.ref_name}}-*.zip"
