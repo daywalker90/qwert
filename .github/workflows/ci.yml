@@ -98,7 +98,7 @@ jobs:
         cd lightning
         python -m venv venv
         source venv/bin/activate
-        python -m pip install -U pip poetry tags
+        python -m pip install -U pip poetry
 
         poetry install
         ./configure --disable-valgrind
