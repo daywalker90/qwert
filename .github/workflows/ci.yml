@@ -73,15 +73,16 @@ jobs:
         ref: ${{ inputs.cln-version }}
         submodules: 'recursive'
 
+    - name: Set up Homebrew
+      if: contains(matrix.os, 'macos')
+      uses: Homebrew/actions/setup-homebrew@master
+
     - name: Compile & install Core Lightning
       if: contains(matrix.os, 'macos')
       run: |
         export EXPERIMENTAL_FEATURES=${{ matrix.experimental }}
         export COMPAT=${{ matrix.deprecated }}
         export VALGRIND=0
-
-        sudo xcode-select --install
-        curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
 
         brew install autoconf automake libtool python3 gnu-sed gettext libsodium sqlite
 
