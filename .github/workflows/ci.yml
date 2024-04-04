@@ -98,11 +98,12 @@ jobs:
         export EXPERIMENTAL_FEATURES=${{ matrix.experimental }}
         export COMPAT=${{ matrix.deprecated }}
         export VALGRIND=0
+        source venv/bin/activate
 
         brew install autoconf automake libtool gnu-sed gettext libsodium sqlite
 
         cd lightning
-        
+
         poetry install
         ./configure --disable-valgrind
         poetry run make
@@ -127,4 +128,5 @@ jobs:
         export TEST_DEBUG=1
         export TRAVIS=1
         export VALGRIND=0
+        source venv/bin/activate
         pytest -n=5 tests/test_*.py
