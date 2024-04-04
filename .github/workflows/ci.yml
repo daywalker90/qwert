@@ -154,5 +154,6 @@ jobs:
         export TEST_DEBUG=1
         export TRAVIS=1
         export VALGRIND=0
+        export PYTEST_TIMEOUT=600
         source venv/bin/activate
         pytest -n=5 tests/test_*.py
