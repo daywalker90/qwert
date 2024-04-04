@@ -21,6 +21,15 @@ file_contains_version() {
     fi
 }
 
+# Function to check if there are pending changes in Git
+has_pending_changes() {
+    if [ -n "$(git status --porcelain)" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Main script
 if [ $# -ne 1 ]; then
     echo "Usage: $0 <version>"
@@ -44,6 +53,12 @@ cargo_version=$(awk -F '"' '/^\[package\]/ {p=1} p && /version/ {print $2; exit}
 
 if [ "$cargo_version" != "$version" ]; then
     echo "Version $version does not match the version in Cargo.toml"
+    exit 1
+fi
+
+# Check for pending changes
+if has_pending_changes; then
+    echo "There are pending changes in the repository. Please commit or stash them before tagging."
     exit 1
 fi
 
