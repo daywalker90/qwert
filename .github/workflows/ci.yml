@@ -39,10 +39,10 @@ jobs:
     - name: Download Bitcoin ${{ matrix.bitcoind-version }} & install binaries
       run: |
         export BITCOIND_VERSION=${{ matrix.bitcoind-version }}
-        if [ "${{ matrix.os }}" =~ "ubuntu" ]; then
+        if [[ "${{ matrix.os }}" =~ "ubuntu" ]]; then
           export TARGET_ARCH="x86_64-linux-gnu"
         fi
-        if [ "${{ matrix.os }}" =~ "macos" ]; then
+        if [[ "${{ matrix.os }}" =~ "macos" ]]; then
           export TARGET_ARCH="apple-darwin"
         fi
         wget https://bitcoincore.org/bin/bitcoin-core-${BITCOIND_VERSION}/bitcoin-${BITCOIND_VERSION}-${TARGET_ARCH}.tar.gz
