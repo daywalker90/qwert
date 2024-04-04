@@ -389,7 +389,7 @@ dependencies = [
 
 [[package]]
 name = "qwert"
-version = "0.0.23"
+version = "0.0.24"
 dependencies = [
  "anyhow",
  "cln-plugin",
