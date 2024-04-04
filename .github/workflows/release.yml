@@ -43,8 +43,8 @@ jobs:
                 export MACOSX_DEPLOYMENT_TARGET=12.0
                 cargo build --profile optimized --locked --target=x86_64-apple-darwin
                 cargo build --profile optimized --locked --target=aarch64-apple-darwin
-                lipo -create -output target/${{ github.event.repository.name }}-${{github.ref_name}}-universal-apple-darwin target/aarch64-apple-darwin/optimized/${{ github.event.repository.name }} target/x86_64-apple-darwin/optimized/${{ github.event.repository.name }}
-                ditto -c -k --sequesterRsrc target/${{ github.event.repository.name }}-${{github.ref_name}}-universal-apple-darwin ${{ github.event.repository.name }}-${{github.ref_name}}-universal-apple-darwin.zip
+                lipo -create -output target/${{ github.event.repository.name }} target/aarch64-apple-darwin/optimized/${{ github.event.repository.name }} target/x86_64-apple-darwin/optimized/${{ github.event.repository.name }}
+                ditto -c -k --sequesterRsrc target/${{ github.event.repository.name }} ${{ github.event.repository.name }}-${{github.ref_name}}-universal-apple-darwin.zip
                 otool -l target/aarch64-apple-darwin/optimized/${{ github.event.repository.name }} | grep -A 5 LC_BUILD_VERSION
                 otool -l target/x86_64-apple-darwin/optimized/${{ github.event.repository.name }} | grep -A 5 LC_BUILD_VERSION
                 echo "macos_version=$MACOSX_DEPLOYMENT_TARGET" >> "$GITHUB_OUTPUT"
