@@ -79,7 +79,7 @@ jobs:
         permissions:
             contents: write
         steps:
-            - name: Get version from tag
+            - name: Get semver version from tag
               id: tag_name
               run: echo "current_version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
             - name: Checkout code
