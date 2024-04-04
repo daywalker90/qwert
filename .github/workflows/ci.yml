@@ -64,6 +64,11 @@ jobs:
       if:  ${{ inputs.tagged-release == false}}
       uses: dtolnay/rust-toolchain@stable
 
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
     - name: Checkout Core Lightning
       if: contains(matrix.os, 'macos')
       uses: actions/checkout@v4
@@ -84,22 +89,15 @@ jobs:
         export COMPAT=${{ matrix.deprecated }}
         export VALGRIND=0
 
-        brew install autoconf automake libtool python3 gnu-sed gettext libsodium sqlite
+        brew install autoconf automake libtool gnu-sed gettext libsodium sqlite
 
         cd lightning
-        pip3 install --user -U \
-          pip \
-          poetry
 
         poetry install
         ./configure --disable-valgrind
         poetry run make
         sudo make install
         
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
 
     - name: Install Python dependencies
       run: |
