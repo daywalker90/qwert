@@ -40,6 +40,8 @@ jobs:
       run: |
         sudo mkdir /usr/local/libexec
         sudo mkdir /usr/local/libexec/c-lightning
+        sudo mkdir /usr/local/libexec/c-lightning/plugins
+        sudo chown -R $USER /usr/local/libexec
 
     - name: Cache CLN
       id: cache-cln
