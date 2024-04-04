@@ -36,6 +36,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Create cache paths
+      run: |
+        mkdir /usr/local/libexec
+        mkdir /usr/local/libexec/c-lightning
+
     - name: Cache CLN
       id: cache-cln
       uses: actions/cache@v4
