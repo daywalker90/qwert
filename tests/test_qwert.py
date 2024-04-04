@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from pyln.testing.fixtures import *  # noqa: F403
 from pyln.testing.utils import only_one, sync_blockheight
 
 def test_private_channel_receive(node_factory, bitcoind):  # noqa: F811
