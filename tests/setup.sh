@@ -59,7 +59,7 @@ if [[ $archive_file == *.tar.gz ]]; then
         exit 1
     fi
 elif [[ $archive_file == *.zip ]]; then
-    if ! unzip "$script_dir/$archive_file" -C "$script_dir"; then
+    if ! unzip "$script_dir/$archive_file" -d "$script_dir"; then
         echo "Error extracting the contents of $archive_file" >&2
         exit 1
     fi
