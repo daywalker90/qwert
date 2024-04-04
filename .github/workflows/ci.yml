@@ -68,7 +68,7 @@ jobs:
         rm -rf bitcoin-${BITCOIND_VERSION}-${TARGET_ARCH}.tar.gz bitcoin-${BITCOIND_VERSION}
       
     - name: Download Core Lightning ${{ inputs.cln-version }} & install binaries
-      if: contains(matrix.os, 'ubuntu') && ${{ steps.cache-cln.outputs.cache-hit != 'true' }}
+      if: ${{ contains(matrix.os, 'ubuntu') &&  steps.cache-cln.outputs.cache-hit != 'true' }}
       run: |
           url=$(curl -s https://api.github.com/repos/ElementsProject/lightning/releases/tags/${{ inputs.cln-version }} \
             | jq '.assets[] | select(.name | contains("22.04")) | .browser_download_url' \
@@ -93,7 +93,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Checkout Core Lightning ${{ inputs.cln-version }}
-      if: contains(matrix.os, 'macos') && ${{ steps.cache-cln.outputs.cache-hit != 'true' }}
+      if: ${{ contains(matrix.os, 'macos') && steps.cache-cln.outputs.cache-hit != 'true' }}
       uses: actions/checkout@v4
       with:
         repository: 'ElementsProject/lightning'
@@ -113,7 +113,7 @@ jobs:
         pip3 install pytest-xdist
 
     - name: Compile Core Lightning ${{ inputs.cln-version }} & install binaries
-      if: contains(matrix.os, 'macos') && ${{ steps.cache-cln.outputs.cache-hit != 'true' }}
+      if: ${{ contains(matrix.os, 'macos') && steps.cache-cln.outputs.cache-hit != 'true' }}
       run: |
         export EXPERIMENTAL_FEATURES=${{ matrix.experimental }}
         export COMPAT=${{ matrix.deprecated }}
