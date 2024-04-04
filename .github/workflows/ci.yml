@@ -43,14 +43,14 @@ jobs:
         path: |
           /usr/local/bin/lightning*
           /usr/local/libexec/c-lightning
-        key: cache-cln-${{ inputs.cln-version }}-${{ matrix.os }}
+        key: cache-cln-${{ inputs.cln-version }}-${{ runner.os }}
 
     - name: Cache bitcoind
       id: cache-bitcoind
       uses: actions/cache@v4
       with:
         path: /usr/local/bin/bitcoin*
-        key: cache-bitcoind-${{ matrix.bitcoind-version }}-${{ matrix.os }}
+        key: cache-bitcoind-${{ matrix.bitcoind-version }}-${{ runner.os }}
 
     - name: Download Bitcoin ${{ matrix.bitcoind-version }} & install binaries
       if: ${{ steps.cache-bitcoind.outputs.cache-hit != 'true' }}
