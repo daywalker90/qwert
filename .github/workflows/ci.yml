@@ -59,14 +59,6 @@ jobs:
         path: /usr/local/bin/bitcoin*
         key: cache-bitcoind-${{ matrix.bitcoind-version }}-${{ runner.os }}
 
-    - name: debug
-      run: |
-        echo "debug start"
-        echo ${{ matrix.os }}
-        echo ${{ steps.cache-cln.outputs.cache-hit }}
-        echo ${{ steps.cache-bitcoind.outputs.cache-hit }}
-        echo "debug end"
-
     - name: Download Bitcoin ${{ matrix.bitcoind-version }} & install binaries
       if: ${{ steps.cache-bitcoind.outputs.cache-hit != 'true' }}
       run: |
