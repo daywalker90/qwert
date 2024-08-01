@@ -1,0 +1,15 @@
+on:
+    workflow_dispatch:
+
+jobs:
+    build:
+        name: testing
+        runs-on: "ubuntu-24.04"
+
+        steps:
+          - name: compiler check
+            run: |
+              echo $CC
+              echo $CXX
+              gcc --version
+              clang --version
