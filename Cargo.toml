@@ -17,7 +17,7 @@ cln-rpc = "0.1.9"
 # cln-rpc = { path="../lightning/cln-rpc/", version = "^0.1" }
 cln-plugin = "0.1.9"
 # cln-plugin = { path="../lightning/plugins/", version = "^0.1" }
-axum-server = "0.7"
+axum-server = { version = "0.7", features = ["tls-rustls"] }
 
 # hex = "0.4.3"
 # bitcoin = { version = "0.30", features = [ "serde" ] }
