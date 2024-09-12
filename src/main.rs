@@ -20,5 +20,5 @@ async fn main() -> Result<(), anyhow::Error> {
     }
 }
 pub async fn qwert(_p: Plugin<()>, _args: serde_json::Value) -> Result<serde_json::Value, Error> {
-    Ok(json!({ "version": format!("v{}",env!("CARGO_PKG_VERSION")) }))
+    Ok(json!({ "version2": format!("v{}",env!("CARGO_PKG_VERSION")) }))
 }
