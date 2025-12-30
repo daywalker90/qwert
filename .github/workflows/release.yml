@@ -67,7 +67,7 @@ jobs:
         - name: Build macOS universal (release)
           id: build
           env:
-            MACOSX_DEPLOYMENT_TARGET: 11.0
+            MACOSX_DEPLOYMENT_TARGET: "11.0"
           run: |
             cargo build --profile optimized --locked --target x86_64-apple-darwin
             cargo build --profile optimized --locked --target aarch64-apple-darwin
