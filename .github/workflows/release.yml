@@ -85,6 +85,36 @@ jobs:
 
             ls -alh *.zip
 
+        - name: Verify macOS deployment target
+          run: |
+            BINARY="${{ github.event.repository.name }}"
+
+            echo "Verifying deployment target for universal binary: $BINARY"
+            echo "Expected minimum macOS version: $MACOSX_DEPLOYMENT_TARGET"
+            echo
+
+            # Check x86_64 slice
+            X86_MINOS=$(otool -l -arch x86_64 "$BINARY" | awk '
+              /LC_BUILD_VERSION/ || /LC_VERSION_MIN_MACOSX/ {getline; getline; getline; if ($1 == "minos") print $2}
+            ')
+            echo "x86_64 slice minos: $X86_MINOS"
+
+            # Check arm64 slice
+            ARM64_MINOS=$(otool -l -arch arm64 "$BINARY" | awk '
+              /LC_BUILD_VERSION/ || /LC_VERSION_MIN_MACOSX/ {getline; getline; getline; if ($1 == "minos") print $2}
+            ')
+            echo "arm64 slice minos: $ARM64_MINOS"
+
+            # Fail if either doesn't match
+            if [ "$X86_MINOS" != "$MACOSX_DEPLOYMENT_TARGET" ] || [ "$ARM64_MINOS" != "$MACOSX_DEPLOYMENT_TARGET" ]; then
+              echo "ERROR: Deployment target mismatch!"
+              echo "Expected: $MACOSX_DEPLOYMENT_TARGET"
+              echo "Got: x86_64=$X86_MINOS, arm64=$ARM64_MINOS"
+              exit 1
+            fi
+
+            echo "Success: Both architectures have deployment target $MACOSX_DEPLOYMENT_TARGET"
+
         - name: Upload macOS artifacts
           uses: actions/upload-artifact@v6
           with:

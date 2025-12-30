@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.28] - 2025-12-30
+
+### Added
+- new release CI
+
 ## [0.0.27] - 2025-12-30
 
 ### Added
